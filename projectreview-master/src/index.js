@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import printme from './print';
 import './style.css';
 import Icon from './sunset.jpg';
 function component() {
@@ -10,7 +11,8 @@ function component() {
 
     var image = new Image();
     image.src = Icon;
-    element.appendChild(image)
+    element.appendChild(image);
+    printme();
     return element;
   }
   
