@@ -1,18 +1,18 @@
 #### 问题1. vuex中的store是如何注入的，如何做到初始化执行一次初始化,new Vue({store})之后， 每个组件调用this.$store都能指向store本store？
-  直接看vuex的源码可以得知，在store.js中，输出了如下函数。Vue.use(vuex)的时候，会自动执行hook到install中。看到这里其实调用了一个applyMixin函数。进去看看这个applyMixin
-  函数做了什么事情。
-  export function install (_Vue) {
-    if (Vue && _Vue === Vue) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error(
-          '[vuex] already installed. Vue.use(Vuex) should be called only once.'
-        )
+  直接看vuex的源码可以得知，在store.js中，输出了如下函数。Vue.use(vuex)的时候，会自动执行hook到install中。看到这里其实调用了一个applyMixin函数。进去看看这个applyMixin函数做了什么事情。
+  
+    export function install (_Vue) {
+      if (Vue && _Vue === Vue) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.error(
+            '[vuex] already installed. Vue.use(Vuex) should be called only once.'
+          )
+        }
+        return
       }
-      return
+      Vue = _Vue
+      applyMixin(Vue)
     }
-    Vue = _Vue
-    applyMixin(Vue)
-  }
   
     找到头部的调用，mixin.js主要做了两件事情。代码如下所示
     首先判断了vue的版本，如果是2.0以上的版本，劫持了Vue的beforeCreate方法，在组件创建之前，执行vuexInit函数。
