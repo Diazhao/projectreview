@@ -45,8 +45,29 @@ clean-webpack-plugin,清除指定的文件夹。
         }
     }
 替代。
-#### 1.5 配置开发环境
-
+#### 1.5 如何写一个自己的插件
+     webpack中为用户提供了对应的hook可以使用户编写属于自己业务的个性化的插件。理解插件的编写，最终要的是要弄清楚两个对象，一个Compiler一个是Compilation。编写插件的例子可以参考官网的教程，https://webpack.js.org/contribute/writing-a-plugin/
+     class FileListPlugin {
+          apply(compiler) {
+               
+          }
+     }
+     可以看到，在新创建一个插件的类的时候，必须要重写一个apply函数，在webpack编译的时候，会运行插件，找到这个函数并且执行。
+     Compiler是一个webpack总体的对象，webpack一旦开始运行，就初始化了这个对象。后续的操作，也都基本基于这个对象。
+     下面是在apply中填充内容。
+     class FileListPlugin {
+         apply(compiler) {
+           // emit is asynchronous hook, tapping into it using tapAsync, you can use tapPromise/tap(synchronous) as well
+           compiler.hooks.emit.tapAsync('FileListPlugin', (compilation, callback) => {
+           }
+        }
+     }
+     这时候我们看到了compiler.hooks.<hookstype>.tabAsync.
+     这种是webpack4中新增的写法，hookstype 对应编译不同时期的钩子，这里可以参考webpack官方文档，https://webpack.js.org/api/compiler-hooks/    不得不说，官方网站的api还是很完备的。
+     compilation,汇编，编辑。即compiler每完成一次编辑，或者构建都会被调用一次。这段官网的说明，只可意会。
+      A compilation instance has access to all modules and their dependencies (most of which are circular references). It is the literal compilation of all the modules in the dependency graph of an application. During the compilation phase, modules are loaded, sealed, optimized, chunked, hashed and restored.
+      compilation同样提供了很多生命周期的钩子供调用。https://webpack.js.org/api/compilation-hooks/
+      只有真正理解了这两个对象，才能顺手的编写webpack插件。
 ### 2.vue相关的知识点
 #### 2.1 初始化一个新的vue项目
 #### 2.2 vue的项目目录结构
