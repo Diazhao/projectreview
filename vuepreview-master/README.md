@@ -8,7 +8,12 @@ vue方便之处之一在于数据的双向绑定，可以为我们的开发带�
      new Vue({
         el: '#editor',
         data: {
-          input: '# hello'
+          input: '# hello',
+          //以下由ol或者dhgis创建的对象，可以不用放在data中
+          //map,
+          //layer,
+          //draw,
+          //measure
         },
         computed: {
           compiledMarkdown: function () {
