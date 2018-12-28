@@ -1,0 +1,14 @@
+.ant-upload-list-picture-card .ant-upload-list-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-thumbnail, .ant-upload-list-picture-card .ant-upload-list-item-thumbnail img {
+    width: auto;
+    height: auto;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-info {
+    height: auto;
+}
