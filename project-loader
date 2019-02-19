@@ -1,0 +1,36 @@
+const loaderUtils = require('loader-utils');
+const fs = require('fs')
+const path = require('path')
+module.exports = function (source){
+    const options = loaderUtils.getOptions(this);
+    var filePath = this.resourcePath
+    var placeHolder = options.placeHolder || '{{_projectholder_}}'
+    var pattern = options.pattern || /@.*vue/
+    var name = options.name || ''
+    var content = fs.readFileSync(filePath, 'utf-8')
+    var contentArray = content.split('\n')
+    for(let i=0;i<contentArray.length;i++){
+        let str = contentArray[i];
+        if(str.indexOf(placeHolder) < 0) continue;
+        let matched = str.match(pattern);
+        if(!matched) continue;
+        let matchUrl = matched[0];
+        let replacedUrl1 = matchUrl.replace(placeHolder, name).replace('@','src');
+        let replacedUrlBase = matchUrl.replace(placeHolder, '').replace('@','src');
+        if(fs.existsSync(replacedUrl1)) {
+            contentArray[i] = str.replace(placeHolder, name);
+            continue;
+        }else if(fs.existsSync(replacedUrlBase)){
+            contentArray[i] = str.replace(placeHolder, '');
+            continue;
+        }else{
+            contentArray[i] = str.replace(matchUrl, '@/components/blank.vue');
+        }
+    }
+    content = contentArray.join('\n')
+    return content;
+}
+
+function resolve(dir) {
+    return path.join(__dirname, '..', dir)
+}
