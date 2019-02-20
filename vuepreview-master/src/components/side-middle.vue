@@ -5,7 +5,7 @@
 
 <script>
 // import * as L from 'leaflet';
-
+import myInterface from '../common/interface'
 export default {
     name: 'sidebar',
     mounted() {
@@ -16,6 +16,11 @@ export default {
         return {
             msg: 'Hello world!'
         }
+    },
+    created(){
+        myInterface.getImage().then(function(msg){
+            console.log(msg)
+        })
     }
 }
 </script>

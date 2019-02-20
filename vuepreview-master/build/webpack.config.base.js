@@ -17,15 +17,20 @@ module.exports = {
     },
     module:{
         rules:[
-            {test:/\.vue$/,use:'vue-loader'},
+            {
+                test:/\.vue$/,use:'vue-loader'
+            },
             {
                 test:/\.css$/,
                 use:['vue-style-loader','css-loader']
             },
-            {test: /\.(png|jpg|jpeg|gif|svg)/,use:'url-loader'},
+            {
+                test: /\.(png|jpg|jpeg|gif|svg)/,
+                use:'url-loader'
+            },
             {
                 test: /\.m?js$/,
-                exclude: /(node_module)/,
+                exclude: /(node_modules)/,
                 use: {
                     loader: 'babel-loader'
                 }

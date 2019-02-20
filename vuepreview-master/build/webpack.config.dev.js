@@ -3,6 +3,7 @@ const baseConfig = require('./webpack.config.base');
 const webpack = require('webpack');
 const path = require('path')
 module.exports = merge(baseConfig,{
+    mode: 'development',
     devtool: 'eval-source-map', // 指定加source-map的方式
     devServer: {
       hot:true,//热加载
