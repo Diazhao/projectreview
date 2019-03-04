@@ -56,4 +56,22 @@
     }
   }
   #### 问题2  vue中的虚拟Dom机制以及虚拟Dom的Diff算法更新机制？
-  
+  #ifdef GL_ES
+precision mediump float;
+#endif
+
+#extension GL_OES_standard_derivatives : enable
+
+uniform float time;
+uniform vec2 resolution;
+
+void main( void ) {
+	vec2 position = ((gl_FragCoord.xy / resolution.xy) * 2. - 1.) * vec2(resolution.x / resolution.y, 1.0);
+	vec2 pos = gl_FragCoord.xy / resolution.xy * vec2(resolution.x / resolution.y, 1.);
+	
+	float d = abs( length(pos* abs(1.2)) - 0.50 * abs(1.2)) * 6.0;
+
+	
+	gl_FragColor += vec4(0.08/d, 0.04 / d, 0.02 / d, 1.0
+					                                    );
+}
