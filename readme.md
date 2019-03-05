@@ -56,22 +56,99 @@
     }
   }
   #### 问题2  vue中的虚拟Dom机制以及虚拟Dom的Diff算法更新机制？
-  #ifdef GL_ES
+#ifdef GL_ES
 precision mediump float;
 #endif
 
-#extension GL_OES_standard_derivatives : enable
-
-uniform float time;
 uniform vec2 resolution;
 
-void main( void ) {
-	vec2 position = ((gl_FragCoord.xy / resolution.xy) * 2. - 1.) * vec2(resolution.x / resolution.y, 1.0);
-	vec2 pos = gl_FragCoord.xy / resolution.xy * vec2(resolution.x / resolution.y, 1.);
-	
-	float d = abs( length(pos* abs(1.2)) - 0.50 * abs(1.2)) * 6.0;
+const float pi = atan(1.0) * 4.0;
 
+float scale    = 0.01;                   // 1e-2
+float epsilon  = 0.0001;                 // 1e-4
+float infinity = 100000.0;               // 1e6
+
+#define THICKNESS       0.001            // 1e-3
+#define BORDER_COLOR    vec3(.15, .12, 1.)
+#define BRIGHTNESS      0.015
+#define BORDER_GAP      4.0
+#define BORDER_CORNER   46.0
 	
-	gl_FragColor += vec4(0.08/d, 0.04 / d, 0.02 / d, 1.0
-					                                    );
+float dfLine(vec2 start, vec2 end, vec2 uv)
+{
+	start *= scale;    // rescale
+	end   *= scale;    // rescale
+
+	vec2 line = end - start;
+	
+	float frac = dot(uv - start,line) / dot(line,line);
+	
+	return distance(start + line * clamp(frac, 0.0, 1.0), uv);
+}
+
+float dfArc(vec2 origin, float start, float sweep, float radius, vec2 uv)
+{
+	origin *= scale;   // rescale
+	radius *= scale;   // rescale
+	
+	uv -= origin;      // move
+	
+	sweep = -sweep;
+	
+	uv *= mat2( cos(start), sin(start), -sin(start), cos(start) ); // rotate to start
+	
+	float offset = (sweep / 2.0 - pi);
+	
+        float angle = mod(atan(uv.y,uv.x) - offset, 2.0 * pi) + offset;
+	
+	angle = clamp(angle, min(0.0, sweep), max(0.0, sweep));
+	
+	return distance(radius * vec2(cos(angle), sin(angle)), uv);
+}
+
+float DrawFrame(vec2 uv, vec2 leftBottom, vec2 rightTop) 
+{
+	float dist = infinity;
+	
+	float corner = BORDER_CORNER;
+	
+	dist = min(dist, dfLine(vec2(rightTop.x   - corner, rightTop.y            ), vec2(leftBottom.x  + corner, rightTop.y             ), uv)); // Top
+	dist = min(dist, dfLine(vec2(leftBottom.x         , rightTop.y    - corner), vec2(leftBottom.x           , leftBottom.y  + corner), uv)); // Left
+	dist = min(dist, dfLine(vec2(rightTop.x           , leftBottom.y  + corner), vec2(rightTop.x             , rightTop.y    - corner), uv)); // Right
+	dist = min(dist, dfLine(vec2(leftBottom.r + corner, leftBottom.y          ), vec2(rightTop.x    - corner, leftBottom.y           ), uv)); // Bottom
+	
+	dist = min(dist, dfArc(vec2(leftBottom.x  + corner, rightTop.y    - corner), -3.14, 1.57, corner, uv));                                   // Top Left
+	dist = min(dist, dfArc(vec2(leftBottom.x  + corner, leftBottom.y  + corner), -1.57, 1.57, corner, uv));                                   // Bottom Line
+	dist = min(dist, dfArc(vec2(rightTop.x    - corner, rightTop.y    - corner),  1.57, 1.57, corner, uv));                                   // Top Right
+	dist = min(dist, dfArc(vec2(rightTop.x    - corner, leftBottom.y  + corner),  0.0,  1.57, corner, uv));                                   // Bottom Right
+	
+	return dist;
+}
+
+void main(void)
+{
+	vec2 uv = (gl_FragCoord.xy) / min(resolution.x, resolution.y);
+	
+	vec2 leftBottom = vec2(0.0);
+	vec2 rightTop = vec2(100.0);
+	
+	if (resolution.x > resolution.y)
+		rightTop.x *= (resolution.x / resolution.y);
+	else
+		rightTop.y *= (resolution.y / resolution.x);
+	
+	leftBottom = leftBottom + BORDER_GAP;
+	rightTop   = rightTop   - BORDER_GAP;
+		
+	vec3 color = vec3(0.0);
+
+	float dist = infinity;
+	
+	dist = DrawFrame(uv, leftBottom, rightTop);
+	
+	float shade = BRIGHTNESS / max(epsilon, dist - THICKNESS);
+	
+	color += BORDER_COLOR * shade;
+	
+	gl_FragColor = vec4(color, 1.0);
 }
