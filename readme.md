@@ -152,3 +152,4 @@ void main(void)
 	
 	gl_FragColor = vec4(color, 1.0);
 }
+https://github.com/jeromeetienne/threex.geometricglow
